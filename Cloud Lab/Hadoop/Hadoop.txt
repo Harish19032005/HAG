@@ -1,0 +1,144 @@
+
+Hadoop Installation:https://phoenixnap.com/kb/install-hadoop-ubuntu
+
+IF error comes after this command "sudo nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml"
+	->sudo -i
+	->sudo nano /etc/sudoers
+	->hdoop all:.....
+wordcount:https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
+
+
+
+### **1. Save the Program**
+1. **Choose a Directory:**
+   - Decide on a directory to save your Java file. For example, use `/home/user/WordCount/`.
+
+2. **Save the File:**
+   - Save the program as `WordCount.java` in the chosen directory. Ensure the filename matches the class name `WordCount`.
+
+   mkdir -p /home/user/WordCount/
+   nano /home/user/WordCount/WordCount.java
+
+   Paste the code into the file and save it (`Ctrl + O` to write, `Ctrl + X` to exit in `nano`).
+
+
+### **2. Compile the Program**
+
+1. **Navigate to the Directory:**
+   ```bash
+   cd /home/user/WordCount/
+   ```
+
+nano .bashrc
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+source ~/.bashrc
+
+
+
+
+
+2. **Compile the Program:**
+   Use the Hadoop `javac` command to compile:
+   ```bash
+   
+   javac -classpath `hadoop classpath` -d . WordCount.java
+
+   ```
+   This will generate `.class` files for your program.
+
+3. **Package the Program into a JAR File:**
+   Create a JAR file `wc.jar` containing the compiled classes:
+   ```bash
+   jar -cvf wordcount.jar -C . .
+
+   ```
+
+---
+
+### **3. Prepare Input Data in HDFS**
+1. **Create an Input Directory in HDFS:**
+   ```bash
+   hdfs dfs -mkdir -p /user/your_username/wordcount/input
+   ```
+   output directory 
+   hdfs dfs -mkdir -p /user/your_username/wordcount/output
+
+2. **Upload Input Files:**
+   Add sample text files to HDFS:
+   ```bash
+   hdfs dfs -put /path/to/local/file01 /user/your_username/wordcount/input/
+   hdfs dfs -put /path/to/local/file02 /user/your_username/wordcount/input/
+   ```
+
+3. **Verify Input Files:**
+   Ensure the files are uploaded:
+   ```bash
+   hdfs dfs -ls /user/your_username/wordcount/input/
+   ```
+
+---
+
+### **4. Run the WordCount Program**
+1. **Run the JAR File:**
+   Execute the MapReduce job using the Hadoop command:
+   ```bash
+   hadoop jar wc.jar WordCount /user/your_username/wordcount/input /user/your_username/wordcount/output
+   
+   hadoop jar wordcount.jar WordCount /input /output
+
+   ```
+   - `/user/your_username/wordcount/input` is the input directory in HDFS.
+   - `/user/your_username/wordcount/output` is the output directory in HDFS.
+
+2. **Ensure No Output Directory Exists:**(Optional)
+   If the `/user/your_username/wordcount/output` directory exists, Hadoop will throw an error. Remove it:
+   ```bash
+   hdfs dfs -rm -r /user/your_username/wordcount/output
+   ```
+
+---
+
+### **5. View the Results**
+1. **Check the Output in HDFS:**
+   List the files in the output directory:
+   ```bash
+   hdfs dfs -ls /user/your_username/wordcount/output/
+   ```
+
+2. **Display the Results:**
+   View the content of the result file:
+   ```bash
+   hdfs dfs -cat /user/your_username/wordcount/output/part-r-00000
+   ```
+   The output will show word counts in the format:
+   ```
+   Bye       1
+   Goodbye   1
+   Hadoop    2
+   Hello     2
+   World     2
+   ```
+
+---
+
+### **6. Debugging Tips**
+- **Compilation Issues:**
+  - Ensure `tools.jar` is in your `$HADOOP_CLASSPATH`.
+  - Check for Java syntax errors in `WordCount.java`.
+
+- **HDFS Errors:**
+  - Ensure Hadoop services (`namenode`, `datanode`, etc.) are running.
+  - Verify HDFS paths exist with `hdfs dfs -ls`.
+
+- **Job Failures:**
+  - Review the logs of the MapReduce job:
+    ```bash
+    yarn logs -applicationId <application_id>
+    ```
+
+---
+
+By following these steps, you can save, compile, and successfully run the `WordCount` MapReduce program on your Hadoop cluster.

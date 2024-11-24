@@ -1,0 +1,36 @@
+sudo apt install openjdk-11-jdk
+
+sudo apt install scala
+
+spark.apache.org/downloads.html    =>  download spark
+
+ls
+
+tar -xvf spark-3.5.3-bin-hadoop3.tgz
+
+ls
+
+cd spark-3.5.3-bin-hadoop3
+
+cd bin
+
+nano input.txt
+
+./spark-shell
+
+"Press enter when collectors word came "
+"Give one one line code "
+
+var textFile = sc.textFile("input.txt")
+
+var words = textFile.flatMap(line => line.split(" "))
+
+var wordPairs = words.map(word => (word,1))
+
+var wordCount = wordPairs.reduceByKey((a,b) => a+b)
+
+wordCount.saveAsTextFile("outputspark")
+
+Press Ctrl+C
+
+cat outputspark/*

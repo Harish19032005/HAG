@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Player Management</title>
+</head>
+<body>
+    <header>
+        <h1>Player Management</h1>
+    </header>
+    <div>
+        <button onclick="showForm('add-player')">Add Player</button>
+        <button onclick="showForm('add-players')">Add Multiple Players</button>
+        <button onclick="showForm('list-one')">List a Player</button>
+        <button onclick="showForm('update-player')">Update Player</button>
+        <button onclick="showForm('delete-player')">Delete Player</button>
+    </div>
+
+    <div id="forms">
+        <form id="add-player" action="/add-player" method="post" style="display:none;">
+            <h2>Add New Player</h2>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required><br><br>
+            <label for="nationality">Nationality:</label>
+            <input type="text" id="nationality" name="nationality" required><br><br>
+            <label for="position">Position:</label>
+            <input type="text" id="position" name="position" required><br><br>
+            <button type="submit">Add Player</button>
+        </form>
+
+        <form id="add-players" action="/add-players" method="post" style="display:none;">
+            <h2>Add Multiple Players</h2>
+            <textarea name="players" rows="10" cols="30" required>[{ "name": "John", "age": 25, "nationality": "English", "position": "Forward" }, ...]</textarea><br><br>
+            <button type="submit">Add Players</button>
+        </form>
+
+        <form id="list-one" action="/player" method="get" style="display:none;">
+            <h2>List a Player</h2>
+            <label for="id">Player ID:</label>
+            <input type="text" id="id" name="id" required><br><br>
+            <button type="submit">Find Player</button>
+        </form>
+
+        <form id="update-player" action="/update-player" method="post" style="display:none;">
+            <h2>Update Player</h2>
+            <label for="id">Player ID:</label>
+            <input type="text" id="id" name="id" required><br><br>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name"><br><br>
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age"><br><br>
+            <label for="nationality">Nationality:</label>
+            <input type="text" id="nationality" name="nationality"><br><br>
+            <label for="position">Position:</label>
+            <input type="text" id="position" name="position"><br><br>
+            <button type="submit">Update Player</button>
+        </form>
+
+        <form id="delete-player" action="/delete-player" method="post" style="display:none;">
+            <h2>Delete Player</h2>
+            <label for="id">Player ID:</label>
+            <input type="text" id="id" name="id" required><br><br>
+            <button type="submit">Delete Player</button>
+        </form>
+    </div>
+
+    <div id="players-list">
+        <% if (players.length > 0) { %>
+            <% players.forEach(player => { %>
+                <p><strong><%= player.name %></strong> - Age: <%= player.age %>, Nationality: <%= player.nationality %>, Position: <%= player.position %></p>
+            <% }) %>
+        <% } else { %>
+            <p>No players found.</p>
+        <% } %>
+    </div>
+
+    <script>
+        function showForm(formId) {
+            document.querySelectorAll('#forms form').forEach(form => form.style.display = 'none');
+            document.getElementById(formId).style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AngularJS Firebase Hosting</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #007bff;
+            margin-top: 50px;
+        }
+        p {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div ng-controller="MainController">
+        <h1>{{ title }}</h1>
+        <p>{{ description }}</p>
+    </div>
+
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('MainController', function ($scope) {
+            $scope.title = "Hello AngularJS with Firebase!";
+            $scope.description = "Welcome to a simple AngularJS app hosted on Firebase.";
+        });
+    </script>
+</body>
+</html>

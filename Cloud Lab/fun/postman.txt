@@ -1,0 +1,19 @@
+npm init -y
+npm install express
+node server.js
+
+//postman
+GET
+http://localhost:5000/users
+POST
+
+PUT
+http://localhost:5000/users/2
+DELETE
+http://localhost:5000/users
+
+
+
+
+//third party 
+run html

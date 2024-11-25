@@ -1,0 +1,18 @@
+1. In google login to your firebase 
+2. go to console, create an app using existing login account
+continue->continue->select project->default fire base project
+3. create an index html and place it in app folder
+4. in cmd,
+    npm install -g firebase-tools
+    npm init -y
+    firebase login
+    firebase init hosting
+    web framework - No
+    public directory - .
+    single page app - No
+    automatic builds - No
+    index.html - No
+    
+    firebase deploy
+    open hosting url
+

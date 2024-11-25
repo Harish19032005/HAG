@@ -1,0 +1,30 @@
+cloud sim
+open eclips
+file->new->java project
+prj name
+give path(cloud sim 3.0.3(save inside documents))
+next
+libraries
+add external jar ->download 5 files
+finish
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-3.0.3
+
+https://repo.maven.apache.org/maven2/org/apache/commons/commons-math3/3.6.1/

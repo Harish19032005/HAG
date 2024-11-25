@@ -1,0 +1,9 @@
+cloud analysist
+
+netbeance
+
+open project  -> cloud_analyst
+run
+configure simulation
+done
+run simulation

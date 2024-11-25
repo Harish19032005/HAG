@@ -1,0 +1,21 @@
+//authentication aas
+//auth0
+
+https://auth0.auth0.com/
+login
+create application
+name
+regular web application
+create
+node js
+sample app
+save and download app
+extract all
+npm init -y
+npm install
+node server.js
+Login
+continue with google
+accept
+
+views-partial-header  remove 2 div

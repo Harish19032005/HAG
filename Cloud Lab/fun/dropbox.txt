@@ -1,0 +1,22 @@
+dropbox
+
+https://dropbox.com/developers
+create app
+login
+scoped acces
+full drop box
+create app
+permission
+file content read 
+file content write
+submit
+setting
+generate tocken and copy
+save app.js code
+  npm install (all in app.js)
+npm install ejs
+node app.js
+http://localhost:3000/
+upload photo
+https://dropbox.com/home
+

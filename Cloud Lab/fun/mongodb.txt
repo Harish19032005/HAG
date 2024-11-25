@@ -1,0 +1,12 @@
+//mongo db password : 123
+E6db
+https://www.mongodb.com/products/platform/atlas-database
+login
+
+node app.js
+perform crude
+
+go to mongodb
+collection-test-players
+
+mongodb+srv://sujithsavarimuthu:sujith123@cluster0.8s0hl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0

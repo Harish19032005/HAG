@@ -1,0 +1,295 @@
+OPENMPI:
+
+install-   sudo apt-get install libopenmpi-dev;  sudo apt-get install openmpi-bin
+
+PROGRAM:
+#include <stdio.h>
+#include <omp.h>
+int main()
+{
+int sum=0;
+int i;
+#pragma omp parallel
+{
+int localsum=0;
+#pragma omp for
+for(i=0;i<10;i++)
+{
+localsum+=i;
+}
+#pragma omp critical
+sum+=localsum;
+}}
+printf("%d",sum);
+return 0;
+}
+
+COMPILE: gcc -fopenmp hello_world.c -o hello_world.out
+RUN: ./hello_world.out
+
+MPICH:
+
+program:
+#include<stdio.h>
+#include<mpi.h>
+int main(int argv,char ** argc){
+int rank,size;
+{
+MPI_Init(NULL,NULL);
+MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+MPI_Comm_size(MPI_COMM_WORLD,&size);
+MPI_Finalize();
+printf("HELLO WORLD FROM %d OUT OF TOTAL PROCESDS %d\n",rank,size);
+}
+printf("program ends");
+return 0;
+}
+
+COMPILE: mpicc hello.c -o hello
+RUN:mpirun -np -4 ./hello
+
+SPARK:
+sudo apt update
+java -version
+sudo apt-get install default-jdk
+sudo apt-get install scala
+scala -version
+Download Apache Spark from google
+cd Downloads
+ls (spark-3.5.3-bin-hadoop3.tgz)
+tar xvf spark-3.5.3-bin-hadoop3.tgz
+sudo su -
+cd /home/tce/Downloads/
+mv spark-3.5.3-bin-hadoop3 /usr/local/sparkfile
+cd /usr/local
+ls
+cd bin
+source ~/.bashrc
+export PATH=$PATH:/usr/local/sparkfile/bin
+spark-shell
+open a new terminal,sudo su -
+file create in /usr/local/bin(input.txt)
+back to spark-shell terminal,
+val inputfile=sc.textFile("input.txt")
+val counts=inputfile.flatMap(line=> line.split(" ")).map(word=>(word,1)).reduceByKey(_+_)
+counts.saveAsTextFile("output")
+exit or ctrl + C
+cd /usr/local/bin/output
+ls (part-00000)
+cat part-00000
+
+
+
+
+
+DOCKER:
+docker --version
+sudo usermod -aG docker $USER -->Adds the current user ($USER) to the Docker group (docker).
+sudo systemctl start docker -->Starts the Docker service.
+sudo systemctl status docker --> Shows the current status of the Docker service
+mkdir test
+cd test
+touch readme.txt
+touch DockerFile
+ls
+gedit DockerFile
+FROM ubuntu
+CMD ["echo","hello i am docker"]S
+sudo docker build -t mydocker .
+sudo docker images
+sudo docker run mydocker
+sudo chown -R $(whoami) ~/.docker
+docker login
+docker images
+docker ps
+docker ps -a
+docker pull ubuntu
+docker run ubuntu
+docker run -d ubuntu
+docker run -it ubuntu /bin/bash
+
+CloudSIM and cloudAnalyst
+
+CloudSIM:
+Download .zip file from the links
+https://github.com/Cloudslab/cloudsim/releases           // (5.0)
+https://commons.apache.org/math/download_math.cgi
+(filename: commons-math4-4.0-beta.1-bin) -->extract it
+Download Eclipse(x86_64)
+Open eclipse,file ->new -> java pro->proj name --> cloudsim
+disable default location and provide the path of cloudsim 5.0 download loc
+click finish
+
+Right click the cloudsim->properties->java build path->libraries->click module path->add external JAR
+ in that (extract the math download)
+Click apply
+Go back to eclipse,open cloudsim(expand it)-->open cloudsim-examples-->org.cloudbus-->cloud example-->double click it(code will be visible) and run it 
+
+cloudAnalyst:
+
+https://sourceforge.net/projects/cloudanalystnetbeans/
+https://netbeans.apache.org/front/main/download/nb17/     // (under installers and packages,first link)
+Open project->cloud analyst,run (error comes also give ok)
+configure simulations and run simulations
+
+
+Hadoop
+/*  sudo apt update
+sudo apt install openjdk-11-jdk
+java -version; javac -version
+sudo apt install openssh-server openssh-client -y
+sudo adduser hdoop
+sudo usermod -aG sudo hdoop
+su - hdoop
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+ssh localhost
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz
+tar xzf hadoop-3.4.0.tar.gz
+nano .bashsrc
+#Hadoop Related Options
+export HADOOP_HOME=/home/hdoop/hadoop-3.4.0
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+source ~/.bashsrc
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+which javac
+readlink -f /usr/bin/javac
+mkdir -p /home/hdoop/tmpdata
+mkdir -p /home/hdoop/dfsdata/namenode
+mkdir -p /home/hdoop/dfsdata/datanode
+nano $HADOOP_HOME/etc/hadoop/core-site.xml
+<configuration>
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/home/hdoop/tmpdata</value>
+</property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://127.0.0.1:9000</value>
+</property>
+</configuration>
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+<configuration>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/datanode</value>
+</property>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+</configuration>
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+<configuration>
+<property>
+  <name>mapreduce.framework.name</name>
+  <value>yarn</value>
+</property>
+</configuration>
+nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>127.0.0.1</value>
+</property>
+<property>
+  <name>yarn.acl.enable</name>
+  <value>0</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>    <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+</configuration>
+hdfs namenode -format
+cd hadoop-3.4.0/sbin
+./start-dfs.sh
+./start-yarn.sh
+jps
+localhost:9846
+localhost:8088
+localhost:9870
+cd /
+mkdir -p /home/hdoop/input
+echo "hello hi hello" > ~/input/file.txt
+hdfs dfs -mkdir -p /user/hadoop/input
+hdfs dfs -put /home/hdoop/input/file.txt /user/hadoop/input
+hdfs dfs -ls /user/hadoop/input
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar wordcount /user/hadoop/input/file.txt /user/hadoop/output
+hdfs dfs -ls /user/hadoop/output
+hdfs dfs -cat /user/hadoop/output/part-r-00000
+*////  Hadoop installation succesuffl
+
+
+Check for Java   -> java -version
+download java then,
+Go to Program files,check for java and cut the jdk and put it into another folder "java" outside the program files.
+//coresite.xml
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://localhost:9000</value>
+</property>
+//httpfs-site.xml
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+
+in Hadoop create a folder called "data" --> namenode and datanode folder (copy the path until datanode)
+
+<property>
+<name>dfs.datanode.data.dir</name>
+<value>path of the datanode</value>
+</property>
+<property>
+<name>dfs.namenode.name.dir</name>
+<value>path of the namenode</value>
+</property>
+
+mapred site .xml
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+
+yarn-site.xml
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property>
+<property>
+<name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
+<value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+
+go to Hadoop and del the bin folder.
+
+https://drive.google.com/file/d/1nCN_jK7EJF2DmPUUxgOggnvJ6k6tksYz/view?usp=sharing
+msvcr 120 dll(put this into c:windows:system32:)
+msvc-170
+hdfs namenode -format
+goto sbin folder cmd ,
+start-dfs.cmd
+jps
+start-yarn.cmd
+ goto chrome=>localhost:9870,localhost:8088

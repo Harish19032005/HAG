@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Lending</title>
+    <link rel="stylesheet" href="ii.css">
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        form {
+            margin-top: 20px;
+        }
+        #student-management {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+            <span class="name">Book Lending</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+    <nav>
+        <button id="login-btn">Login</button>
+        <button id="logout-btn" style="display: none;">Logout</button>
+        <span id="user-profile"></span>
+    </nav>
+
+    <div id="student-management">
+        <h1>Student Management</h1>
+        <table id="students-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <form id="student-form">
+            <input type="hidden" id="student-id">
+            <input type="text" id="student-name" placeholder="Name" required>
+            <input type="number" id="student-age" placeholder="Age" required>
+            <button type="submit">Save</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth0 = await createAuth0Client({
+                domain: 'dev-5apvjphrm55fr81q.us.auth0.com',
+                client_id: 'ZNtt2hnVAs8UPR4fD22TjOCqmsl5DldS',
+                redirect_uri: 'http://localhost:3000'
+            });
+
+            const updateUI = async () => {
+                try {
+                    const isAuthenticated = await auth0.isAuthenticated();
+                    document.getElementById('login-btn').style.display = isAuthenticated ? 'none' : 'block';
+                    document.getElementById('logout-btn').style.display = isAuthenticated ? 'block' : 'none';
+
+                    if (isAuthenticated) {
+                        const user = await auth0.getUser();
+                        document.getElementById('user-profile').textContent = `Welcome, ${user.name}`;
+                        document.getElementById('student-management').style.display = 'block';
+                        renderStudents();
+                    } else {
+                        document.getElementById('user-profile').textContent = '';
+                        document.getElementById('student-management').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error updating UI:', error);
+                }
+            };
+
+            const login = async () => {
+                await auth0.loginWithRedirect();
+            };
+
+            const logout = () => {
+                auth0.logout({ returnTo: window.location.origin });
+            };
+
+            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                try {
+                    await auth0.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error('Error handling redirect callback:', error);
+                }
+            }
+
+            // Event listeners for login and logout
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            updateUI();
+
+            const fetchStudents = async () => {
+                const response = await fetch('/api/students');
+                return response.json();
+            };
+
+            const addStudent = async (student) => {
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(student),
+                });
+                return response.json();
+            };
+
+            const updateStudent = async (id, student) => {
+                const response = await fetch(`/api/students/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(student),
+                });
+                return response.json();
+            };
+
+            const deleteStudent = async (id) => {
+                await fetch(`/api/students/${id}`, { method: 'DELETE' });
+            };
+
+            const renderStudents = async () => {
+                const students = await fetchStudents();
+                const tbody = document.querySelector('#students-table tbody');
+                tbody.innerHTML = students.map(student => `
+                    <tr data-id="${student.id}">
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.age}</td>
+                        <td>
+                            <button onclick="editStudent(${student.id})">Edit</button>
+                            <button onclick="removeStudent(${student.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            };
+
+            window.editStudent = (id) => {
+                const row = document.querySelector(`#students-table tbody tr[data-id="${id}"]`);
+                document.getElementById('student-id').value = id;
+                document.getElementById('student-name').value = row.children[1].textContent;
+                document.getElementById('student-age').value = row.children[2].textContent;
+            };
+
+            window.removeStudent = async (id) => {
+                await deleteStudent(id);
+                renderStudents();
+            };
+
+            document.getElementById('student-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const id = document.getElementById('student-id').value;
+                const name = document.getElementById('student-name').value;
+                const age = document.getElementById('student-age').value;
+
+                if (id) {
+                    await updateStudent(id, { name, age });
+                } else {
+                    await addStudent({ name, age });
+                }
+
+                document.getElementById('student-form').reset();
+                renderStudents();
+            });
+        });
+    </script>
+</body>
+</html>

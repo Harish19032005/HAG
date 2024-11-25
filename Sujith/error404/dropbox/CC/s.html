@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Lending App</title>
+    <link rel="stylesheet" href="styleauthen.css">
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
+    <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth0 = await createAuth0Client({
+                domain: 'dev-7ay4oaf77wyobzhg.us.auth0.com',
+                client_id: 'YsmXAkDzOVV9dzaOmIl6pvhBMQR2SUYp',
+                redirect_uri: 'http://localhost:3000'
+            });
+
+            const dbx = new Dropbox.Dropbox({ accessToken: 'sl.CBRAjekKy5YeSdyemitKgdSqQ-jrLj8LyKNvxm6KPBWSUZ5xZ9RqjQej6rmV2s7ns8yKHF6Czgcd7mkm5sTP4_NcEVmmjUZxJpV5n3EbaGnYgCGMZJG_KsuaPVfi1Fr6MYKNsAd4qhF3' });
+
+            const updateUI = async () => {
+                try {
+                    const isAuthenticated = await auth0.isAuthenticated();
+                    document.getElementById('login-btn').style.display = isAuthenticated ? 'none' : 'block';
+                    document.getElementById('logout-btn').style.display = isAuthenticated ? 'block' : 'none';
+
+                    if (isAuthenticated) {
+                        const user = await auth0.getUser();
+                        document.getElementById('user-profile').textContent = `Welcome, ${user.name}`;
+                    } else {
+                        document.getElementById('user-profile').textContent = '';
+                    }
+                } catch (error) {
+                    console.error('Error updating UI:', error);
+                }
+            };
+
+            const login = async () => {
+                await auth0.loginWithRedirect();
+            };
+
+            const logout = () => {
+                auth0.logout({
+                    returnTo: window.location.origin
+                });
+            };
+
+            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                try {
+                    await auth0.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error('Error handling redirect callback:', error);
+                }
+                updateUI();
+            } else {
+                updateUI();
+            }
+
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            document.getElementById('fileInput').addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    try {
+                        const response = await dbx.filesUpload({
+                            path: '/BookImages/' + file.name,
+                            contents: file
+                        });
+                        console.log('File uploaded successfully:', response);
+                        alert('File uploaded successfully!');
+                    } catch (error) {
+                        console.error('Error uploading file:', error);
+                        alert('Error uploading file: ' + (error.error ? JSON.stringify(error.error) : error.message));
+                    }
+                }
+            });
+
+            document.getElementById('download-btn').addEventListener('click', async () => {
+                const fileNameInput = document.getElementById('uploaded-file-name');
+                const fileName = fileNameInput ? fileNameInput.value : '';
+
+                if (!fileName) {
+                    alert('No file selected for download.');
+                    return;
+                }
+
+                const filePath = '/BookImages/' + fileName; // Ensure the correct path with matching case
+                console.log('Attempting to download file from path:', filePath);
+
+                try {
+                    const response = await dbx.filesDownload({ path: filePath });
+                    console.log('Download response:', response);
+
+                    if (response && response.result && response.result.fileBlob) {
+                        const blob = new Blob([response.result.fileBlob], { type: response.result.mime_type || 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url); // Clean up
+                    } else {
+                        console.error('No fileBlob in response:', response);
+                        alert('Error downloading file: No file data received.');
+                    }
+                } catch (error) {
+                    console.error('Error downloading file:', error);
+                    alert('Error downloading file: ' + (error.error ? JSON.stringify(error.error) : error.message));
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+            <span class="name">Book Lending</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+        <button id="login-btn">Login</button>
+        <button id="logout-btn" style="display: none;">Logout</button>
+        <span id="user-profile"></span>
+    </nav>
+
+    <!-- File upload and download -->
+    <div>
+        <input type="file" id="fileInput">
+        <input type="text" id="uploaded-file-name" placeholder="Enter file name to download">
+        <button id="download-btn">Download File</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

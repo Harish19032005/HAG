@@ -1,0 +1,289 @@
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+docker --version
+mkdir myapp && cd myapp
+nano app.py
+
+
+
+content:
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Mock database (in-memory)
+students = {}
+
+@app.route('/students', methods=['GET'])
+def get_all_students():
+    return jsonify(students)
+
+@app.route('/students/<int:id>', methods=['GET'])
+def get_student(id):
+    student = students.get(id)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+    return jsonify(student)
+
+@app.route('/students', methods=['POST'])
+def add_student():
+    data = request.json
+    id = data.get("id")
+    if id in students:
+        return jsonify({"error": "Student ID already exists"}), 400
+    students[id] = {
+        "name": data.get("name"),
+        "age": data.get("age"),
+        "grade": data.get("grade")
+    }
+    return jsonify({"message": "Student added successfully"}), 201
+
+@app.route('/students/<int:id>', methods=['PUT'])
+def update_student(id):
+    if id not in students:
+        return jsonify({"error": "Student not found"}), 404
+    data = request.json
+    students[id].update({
+        "name": data.get("name", students[id]["name"]),
+        "age": data.get("age", students[id]["age"]),
+        "grade": data.get("grade", students[id]["grade"])
+    })
+    return jsonify({"message": "Student updated successfully"})
+
+@app.route('/students/<int:id>', methods=['DELETE'])
+def delete_student(id):
+    if id not in students:
+        return jsonify({"error": "Student not found"}), 404
+    del students[id]
+    return jsonify({"message": "Student deleted successfully"})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+
+
+(ctrl o,enter ,ctrl z)
+
+
+nano requirements.txt
+
+content :
+
+Flask
+
+nano Dockerfile
+
+content :
+
+# Use an official Python runtime as a base image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy application files
+COPY . /app
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the application port
+EXPOSE 5000
+
+# Define the command to run the app
+CMD ["python", "app.py"]
+
+*********
+docker build -t student-management-app .
+docker run -d -p 5000:5000 student-management-app
+*********
+add:
+
+curl -X POST http://localhost:5000/students \
+-H "Content-Type: application/json" \
+-d '{"id": 1, "name": "John Doe", "age": 20, "grade": "A"}'
+
+*******
+
+get:
+
+curl http://localhost:5000/students
+
+********
+
+update :
+
+curl -X PUT http://localhost:5000/students/1 \
+-H "Content-Type: application/json" \
+-d '{"name": "John Smith", "age": 21, "grade": "A+"}'
+
+*******
+
+delete:
+
+curl -X DELETE http://localhost:5000/students/1
+
+********
+
+
+
+
+
+
+
+
+
+prg 2:
+
+
+nano sum.py
+
+n=int(input("Enter n: "))
+result=sum(range(1,n+1))
+print(f"Sum of 1 to {n}: {result}")
+
+nano Dockerfile 	#file name must be "Dockerfile"
+
+from python:3.9
+copy sum.py /sum.py
+cmd ["python3", "/sum.py"]
+
+sudo docker build -t sum_image .
+sudo docker run -it sum_image
+
+
+prg 3:
+
+
+nano app.py
+
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '''
+        <form action="/calculate" method="post">
+            <label for="n">Enter n:</label>
+            <input type="number" id="n" name="n">
+            <button type="submit">Calculate Sum</button>
+        </form>
+    '''
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    try:
+        n = int(request.form.get('n', 0))
+        result = sum(range(1, n + 1))
+        return jsonify({"n": n, "sum": result})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+
+
+
+nano Dockerfile
+
+from python:3.9
+WORKDIR /app
+COPY app.py /app/app.py
+RUN pip install flask
+CMD ["python3", "app.py"]
+
+
+
+sudo docker build -t flask_sum_app .
+
+sudo docker run -d -p 5000:5000 flask_sum_app
+
+https://localhost:5000
+
+
+
+
+suji and sathya steps :
+
+
+
+sudo apt get-update
+sudo apt install docker.io
+sudo systemctl enable docker
+sudo systemctl status docker
+mkdir proj
+cd proj
+nano index.html(write any html content here)
+nano Dockerfile
+   Type these 4 lines of code into dockerfile and save it
+     FROM nginx:latest
+    COPY  . /usr/share/nginx/html
+     EXPOSE 80
+     CMD  ["nginx", "-g" ,"daemon off;"]
+
+
+Again in terminal
+
+docker build -t sample .
+docker run -d -p 8080:80 sample
+
+
+Then go to browser
+
+http://localhost:8080
+
+
+*********
+sudo apt get-update
+sudo apt install docker.io
+sudo systemctl enable docker
+sudo systemctl status docker
+mkdir proj
+cd proj
+nano index.html(write any html content here)
+nano Dockerfile
+   Type these 4 lines of code into dockerfile and save it
+     FROM nginx:latest
+    COPY  . /usr/share/nginx/html
+     EXPOSE 80
+     CMD  ["nginx", "-g" ,"daemon off;"]
+
+
+Again in terminal
+
+docker build -t sample .
+docker run -d -p 8080:80 sample
+
+
+Then go to browser
+
+http://localhost:8080
+
+
+docker images
+
+go to docker hub and login
+
+create repo:repo name shld be given
+public 
+give create
+
+go to cmd
+docker login
+docker tag sample:latest reponame
+docker push reponame:latest
+
+docker images
+sudo docker pull reponame:latest
+
+
+
+

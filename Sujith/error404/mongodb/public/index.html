@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student CRUD App</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-app="studentApp" ng-controller="studentCtrl">
+  <div>
+    <h2>Student Form</h2>
+    <form ng-submit="addStudent()" name="studentForm">
+      <input type="text" ng-model="student.name" placeholder="Name" required />
+      <input type="number" ng-model="student.age" placeholder="Age" required />
+      <input type="text" ng-model="student.grade" placeholder="Grade" required />
+      <button type="submit" ng-disabled="studentForm.$invalid">Add Student</button>
+    </form>
+  </div>
+
+  <div>
+    <h2>Students Table</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Grade</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Apply orderBy filter to sort by name in ascending order -->
+        <tr ng-repeat="stu in students | orderBy:'name'">
+          <td><input ng-model="stu.name" /></td>
+          <td><input ng-model="stu.age" /></td>
+          <td><input ng-model="stu.grade" /></td>
+          <td>
+            <button ng-click="updateStudent(stu)">Update</button>
+            <button ng-click="deleteStudent(stu._id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const app = angular.module('studentApp', []);
+
+    // Service to handle CRUD operations
+    app.service('StudentService', function ($http) {
+      const apiUrl = 'http://localhost:5000/api/students';
+
+      // Fetch all students
+      this.getStudents = function () {
+        return $http.get(apiUrl);
+      };
+
+      // Add new student
+      this.addStudent = function (student) {
+        return $http.post(apiUrl, student);
+      };
+
+      // Update existing student
+      this.updateStudent = function (id, student) {
+        return $http.put(`${apiUrl}/${id}`, student);
+      };
+
+      // Delete student by id
+      this.deleteStudent = function (id) {
+        return $http.delete(`${apiUrl}/${id}`);
+      };
+    });
+
+    // Controller to interact with the view
+    app.controller('studentCtrl', function ($scope, StudentService) {
+      $scope.students = [];
+      $scope.student = {};
+
+      // Fetch Students
+      const fetchStudents = () => {
+        StudentService.getStudents().then((res) => {
+          $scope.students = res.data;
+        });
+      };
+
+      fetchStudents();
+
+      // Add Student
+      $scope.addStudent = () => {
+        StudentService.addStudent($scope.student).then(() => {
+          $scope.student = {}; // Clear form after adding
+          fetchStudents();
+        });
+      };
+
+      // Update Student
+      $scope.updateStudent = (stu) => {
+        StudentService.updateStudent(stu._id, stu).then(() => {
+          fetchStudents();
+        });
+      };
+
+      // Delete Student
+      $scope.deleteStudent = (id) => {
+        StudentService.deleteStudent(id).then(() => {
+          fetchStudents();
+        });
+      };
+    });
+  </script>
+</body>
+</html>

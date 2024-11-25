@@ -1,0 +1,56 @@
+dropbox developers page login
+
+select>scope access
+select>app folder
+name your app
+create an app
+
+
+go to permissions 
+	enable
+	>files.content.write
+	>files.content.read
+
+generate token:
+	> go to settings
+	> copy generate token
+
+
+cmd:pip.install dropbox
+
+drop box home-page
+
+create folder"travel"
+then open python idle
+
+( change the file path '\' to '/' )
+
+
+
+import dropbox
+
+# Assign the access token and file paths correctly
+dropbox_access_token = "sl.B-4bRnyr00-PLLWRgjoGascwt5UZ0OH5AknUAThSPblUBjHOBhQAI1aejGNNZ398Ka4jNpHbjNFJKDHI5-_zcFcW7wytAlVRF7z_CudNlG3iMkH3zO-gYLPrLnnxm23dqflanZ6unvJQ"
+dropbox_path = "/travel/logo.png"
+computer_path = "C:/Users/shant/OneDrive/Desktop/semester5/cc/logo.png"
+
+# Create a Dropbox client
+client = dropbox.Dropbox(dropbox_access_token)
+
+# Confirm Dropbox account linking
+print("[SUCCESS] Dropbox account linked")
+
+# Upload the file to Dropbox
+with open(computer_path, "rb") as f:
+    client.files_upload(f.read(), dropbox_path)
+
+# Confirm the file upload
+print("[UPLOADED] {}".format(computer_path))
+
+
+
+
+
+save and run..
+
+finally image is imported.....

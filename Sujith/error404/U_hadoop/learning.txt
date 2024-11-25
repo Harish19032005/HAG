@@ -1,0 +1,133 @@
+Cloud Learning
+Hadoop
+Sudo apt update
+Sudo apt install ssh
+Wget hadoop link
+Tar -xzf hadoop file
+Sudo apt install openjdk-11-jdk
+Mv hadoop-3.3.6 hadoop
+Cd hadoop
+Mkdir data
+Cd data
+Mkdir -p {dataode,namenode}
+Come back
+Gedit ~/.bashrc
+Source ~/.bashrc
+Cd /etc/hadoop
+Java location- dirname $(dirname $(readlink -f $(which java)))
+Gedit hadoop-env.sh
+Gedit core-site.xml
+Gedit hdfs-site.xml
+Gedit yarn-site.xml
+Gedit mapred-site.xml
+Ssh-keygen -t rsa
+Cat ~/.ssh/id_rsa.pub>>~/.ssh/authorized_keys
+Hdfs -chmod 640 ~/.ssh/authorized_keys
+start-hdfs.sh
+start-yarn.sh
+Hdfs namenode -format
+Jps
+Create count.txt in hadoop
+Hdfs -mkdir /user/jagath
+Hdfs -put /home/jagath/hadoop/count.txt /user/jagath/
+Use ls to check
+Hdfs -chmod 755 /user/jagath/count.txt
+Hadoop jar /home/jagath/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.6.jar wordcount /user/jagath/count.txt /output
+Hadoop fs -ls /output
+Take the file name and use cat cmd
+Hadoop
+1
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HADOOP_HOME=/home/jagath/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+
+2
+# Hadoop Configuration
+# For core-site.xml
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://localhost:9000</value>
+</property>
+
+
+3
+#For hdfs-site.xml or https-site.xml
+<property>
+<name>dfs.replication</name>
+<value>3</value>
+/property><property> <
+<name>dfs.name.dir</name>
+<value>/home/jagath/hadoop/data/namenode</value>
+</property><property>
+<name>dfs.data.dir</name>
+<value>/home/jagath/hadoop/data/datanode</value>
+</property>
+
+4
+# For yarn-site.xml
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property><property>
+<name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
+<value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+
+5
+# For mapred-site.xml
+<property>
+  <name>yarn.app.mapreduce.am.env</name>
+  <value>HADOOP_MAPRED_HOME=${/home/jagath/hadoop/share/hadoop/mapreduce}</value>
+</property>
+<property>
+  <name>mapreduce.map.env</name>
+  <value>HADOOP_MAPRED_HOME=${/home/jagath/hadoop/share/hadoop/mapreduce}</value>
+</property>
+<property>
+  <name>mapreduce.reduce.env</name>
+  <value>HADOOP_MAPRED_HOME=${/home/jagath/hadoop/share/hadoop/mapreduce}</value>
+</property>
+
+Spark
+Sudo apt install openjdk-11-jdk
+Sudo apt install scala
+Wget spark
+Tar -xzf spark_file_name
+Mv spark_file_name /usr/local/spark
+Gedit ~/.bashrc
+Export PATH=$PATH:/usr/local/spark/bin
+Spark-scala
+Ls /usr/local/spark/examples/jars
+./bin/spark-submit --class org.apache.spark.examples.LocalPi -master local[4] /usr/local/spark/examples/jars/………….. 100
+MPI
+Sudo apt install python3
+Sudo apt install -y -qq mpich
+Sudo apt install python3-pip
+Sudo apt install python3-mpi4py
+Mpirun -np 4 python3 mpi_sample.py
+from mpi4py import MPI
+import numpy as np
+
+comm=MPI.COMM_WORLD
+rank=comm.Get_rank()
+size=comm.Get_size()
+
+if rank==0:
+	data=np.arange(100,dtype="i")
+	chunks=np.array_split(data,size)
+else:
+	chunks=None
+chunk=comm.scatter(chunks,root=0)
+local_sum=np.sum(chunk);
+total_sum=comm.gather(local_sum,root=0)
+if rank==0:
+	final_sum=np.sum(total_sum)
+	print("The final sum is ",final_sum)
+

@@ -1,0 +1,14 @@
+Set up Auth0 in auth0 website
+	
+	> Go to auth0 website
+	> Login using credentials
+	> Create a new Application
+	> Click single page application
+	> Application will be created
+	> Go to 'settings' tab
+	> Set callback url to http://localhost:3000
+	> Set allowed logout url to http://localhost:3000
+	> Set allowed web origin url to http://localhost:3000
+	> COPY THE DOMAIN name and CLIENT_ID
+    Replace {YOUR_DOMAIN} and {YOUR_CLIENT_ID} with your Auth0 credentials.
+

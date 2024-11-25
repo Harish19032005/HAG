@@ -1,0 +1,80 @@
+
+1. sudo apt update
+2. java -version
+3. sudo apt install scala
+4. Download apache spark from https://www.apache.org/dyn/closer.lua/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz
+5. cd Downloads
+6. ls
+7. tar xvf spark-3.5.3-bin-hadoop3.tgz
+8. sudo mv spark-3.5.3-bin-hadoop3 /usr/local/spark
+8. cd /usr/local/
+9. ls
+10. cd
+11. nano ~/.bashrc
+12. add ' export PATH=$PATH:/usr/local/spark/bin ' at the end and save -> exit
+13. source ~/.bashrc
+14. spark-shell
+
+spark-example_wordcount
+
+nano textfile.txt
+pwd
+val textFile = sc.textFile("home/osboxes/textfile.txt")
+val words = textFile.flatMap(line => line.split(" "))
+val wordPairs = words.map(word => (word, 1))
+val wordCounts = wordPairs.reduceByKey(_ + _)
+wordCounts.collect().foreach(println)
+-----------
+spark-example_To count lines in a file
+
+// Load the text file
+val textFile = sc.textFile("/home/osboxes/textfile.txt")
+
+// Count the number of lines
+val lineCount = textFile.count()
+
+println(s"Total number of lines: $lineCount")
+
+----------------------------------frommodel---
+//SPARK
+
+sudo apt update
+sudo apt install openjdk-8-jdk
+java -version
+
+sudo apt install scala
+scala -version
+
+wget <link of spark from internet>
+tar -xvf <downloaded file name>
+sudo mv <extracted file name> spark  // renaming in the same directory as downloaded
+
+//Set Spark environment variables
+
+export SPARK_HOME=<current location of spark>
+export PATH=$PATH:$SPARK_HOME/bin
+
+gedit sample.txt // in the same directory as spark
+
+spark-shell
+
+// word count program
+val textFile = sc.textFile("path_to_input_file.txt")  //sample.txt or its path
+val wordCounts = textFile.flatMap(line => line.split("\\s+")).map(word => (word, 1)).reduceByKey(_ + _)                    
+wordCounts.saveAsTextFile("output_directory") //any name ex:output
+wordCounts.collect().foreach(println) //for printing in the scala
+
+cd output
+cat part-00000 //for displaying in the terminal
+
+//other spark programs - multiply each element of sequence by 2
+val data = sc.parallelize(Seq(1, 2, 3, 4, 5))
+val result = data.map(_ * 2).collect()
+result.foreach(println) // Print result
+
+//other spark programs - dataset type questions
+val data = spark.read.format("libsvm").load("data/mllib/sample_binary_classification_data.txt")  // Load and prepare the training data
+val lr = new LogisticRegression()  // Train a LogisticRegression model
+val model = lr.fit(data)
+val predictions = model.transform(data)  // Make predictions
+predictions.show()

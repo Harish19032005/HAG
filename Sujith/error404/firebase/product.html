@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Retail App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body ng-app="retailApp" ng-controller="MainController">
+    <div class="container">
+        <h1>Home Retail Management</h1>
+        
+        <h2>Products</h2>
+        <ul id="product-list">
+            <li ng-repeat="product in products">
+                {{product.name}} - {{product.description}} - Rating: {{product.rating}} - Price: {{product.price}} - Quantity: {{product.quantity}}
+                <button ng-click="deleteProduct($index)">Delete</button>
+            </li>
+        </ul>
+        
+        <h2>Add Product</h2>
+        <form id="product-form" ng-submit="addProduct()">
+            <input type="text" id="name" ng-model="newProduct.name" placeholder="Name" required>
+            <input type="text" id="description" ng-model="newProduct.description" placeholder="Description" required>
+            <input type="number" id="rating" ng-model="newProduct.rating" placeholder="Rating" required>
+            <input type="number" id="price" ng-model="newProduct.price" placeholder="Price" required>
+            <input type="number" id="quantity" ng-model="newProduct.quantity" placeholder="Quantity" required>
+            <button type="submit">Add Product</button>
+        </form>
+    </div>
+
+    <!-- AngularJS library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    
+    <!-- Script to manage the app -->
+    <script>
+        var app = angular.module('retailApp', []);
+
+        app.controller('MainController', function($scope) {
+            $scope.products = []; // Initialize the product list
+            $scope.newProduct = {}; // Initialize the new product object
+
+            // Add a new product to the in-memory list
+            $scope.addProduct = function() {
+                $scope.products.push({
+                    name: $scope.newProduct.name,
+                    description: $scope.newProduct.description,
+                    rating: $scope.newProduct.rating,
+                    price: $scope.newProduct.price,
+                    quantity: $scope.newProduct.quantity
+                });
+                $scope.newProduct = {}; // Clear the form after adding a product
+            };
+
+            // Delete a product from the in-memory list
+            $scope.deleteProduct = function(index) {
+                $scope.products.splice(index, 1);
+            };
+        });
+    </script>
+</body>
+</html>

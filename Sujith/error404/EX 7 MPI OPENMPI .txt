@@ -1,0 +1,86 @@
+mpi   Linux
+
+
+cmd : sudo apt  install mpich
+cmd : mpiexec --version
+cmd : touch cloud2.c
+cmd : sudo gedit cloud2.c
+
+#paste the code
+
+cmd : mpicc -o cloud2 cloud2.c
+cmd : mpirun -np 5 ./cloud2
+
+
+open mpi in linux
+
+cmd : sudo apt install openmpi-bin openmpi-common libopenmpi-dev
+cmd: mpirun --version
+cmd : touch cloud2.c
+cmd : sudo gedit cloud2.c
+cmd : mpicc -o cloud2 cloud2.c
+cmd : mpirun -np 5 ./cloud2
+
+------------------------------
+mpi parallel programminng
+
+
+1)Go to link https://www.mpich.org/static/downloads/1.4/
+2)Download mpich2-1.4-win-x86-64.msi.  Right click and install 
+3)Go to https://sourceforge.net/projects/codeblocks/files/Binaries/20.03/Windows/codeblocks-20.03mingw-setup.exe/download
+
+Download and install codeblocks
+Setup environment variable:C:\ProgramFiles\CodeBlocks\MinGW\bin
+.Select every one for access
+
+4)Install codeblocks
+5)Opencodeblocks->settings->compiler->linkersettings->add->browseand select -> C:\Program Files\MPICH2new\lib\mpi.lib
+6)Searchdirectories->add->browseandselect->C:\Program Files\MPICH2new\include
+7)Open administrator cmd and 
+	> run:  smpd –install
+	>Run : smpd –d
+
+8)Create a Cfile(hello.c)
+
+
+
+#include <stdio.h>
+#include <mpi.h>
+
+int main(int argc, char *argv[]) {
+    int rank, size;
+
+    MPI_Init(&argc, &argv);  // Initialize the MPI library
+    MPI_Comm_size(MPI_COMM_WORLD, &size);  // Get number of processes
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);  // Get my process ID
+
+    // Do something
+    printf("Hello World from rank %d\n", rank);
+    if (rank == 0) {
+        printf("MPI World size = %d processes\n", size);
+    }
+
+    MPI_Finalize();  // MPI cleanup
+    return 0;
+}
+
+
+
+9)open saving above file location 
+	>cmd:smpd -install
+
+	2 times
+	>cmd mpiexec -n 4 ./a
+
+
+
+
+
+10) output will be shown below....
+
+
+
+
+
+
+

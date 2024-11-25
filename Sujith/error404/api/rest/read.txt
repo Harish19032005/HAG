@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notepad Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .note {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .note input[type="text"], .note textarea {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    .note button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .note button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Notepad Application</h1>
+  <!-- Form for adding a new note -->
+  <div id="addNoteForm" class="note">
+    <h2>Add New Note:</h2>
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title"><br>
+    <label for="content">Content:</label><br>
+    <textarea id="content" name="content"></textarea><br>
+    <button onclick="addNote()">Add Note</button>
+  </div>
+  <!-- Container to display notes -->
+  <div id="notesContainer"></div>
+  <script>
+    let notes = [];
+    
+    // Add a new note
+    function addNote() {
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      if (title.trim() === '' || content.trim() === '') {
+        alert('Please enter both title and content');
+        return;
+      }
+      const newNote = { id: Date.now(), title: title, content: content };
+      notes.push(newNote);
+      displayNotes();
+      document.getElementById('title').value = '';
+      document.getElementById('content').value = '';
+    }
+
+    // Delete a note
+    function deleteNote(id) {
+      notes = notes.filter(note => note.id !== id);
+      displayNotes();
+    }
+
+    // Update a note
+    function updateNote(id) {
+      const updatedTitle = prompt('Enter new title:');
+      const updatedContent = prompt('Enter new content:');
+      if (updatedTitle !== null && updatedContent !== null) {
+        const index = notes.findIndex(note => note.id === id);
+        if (index !== -1) {
+          notes[index].title = updatedTitle;
+          notes[index].content = updatedContent;
+          displayNotes();
+        }
+      }
+    }
+
+    // Display all notes
+    function displayNotes() {
+      const notesContainer = document.getElementById('notesContainer');
+      notesContainer.innerHTML = '';
+      notes.forEach(note => {
+        const noteDiv = document.createElement('div');
+        noteDiv.className = 'note';
+        noteDiv.innerHTML = `
+          <h2>${note.title}</h2>
+          <p>${note.content}</p>
+          <button onclick="deleteNote(${note.id})">Delete</button>
+          <button onclick="updateNote(${note.id})">Update</button>
+        `;
+        notesContainer.appendChild(noteDiv);
+      });
+    }
+  </script>
+</body>
+</html>
+server.js//
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.static(path.join(__dirname, '.')));
+app.use(express.json());
+
+let notes = [];
+
+// Get all notes
+app.get('/api/notes', (req, res) => {
+  res.json(notes);
+});
+
+// Add a new note
+app.post('/api/notes', (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+  const newNote = { id: Date.now(), title, content };
+  notes.push(newNote);
+  res.json(newNote);
+});
+
+// Delete a note
+app.delete('/api/notes/:id', (req, res) => {
+  const { id } = req.params;
+  notes = notes.filter(note => note.id !== parseInt(id));
+  res.json({ message: 'Note deleted' });
+});
+
+// Update a note
+app.put('/api/notes/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+  const note = notes.find(note => note.id === parseInt(id));
+  if (!note) {
+    return res.status(404).json({ message: 'Note not found' });
+  }
+  note.title = title || note.title;
+  note.content = content || note.content;
+  res.json(note);
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port "+PORT);
+});
+
+get: http://localhost:3000/api/notes
+post: http://localhost:3000/api/notes  (//body-raw//json)
+{
+  "title": "Your note title",
+  "content": "Your note content"
+}
+delete-http://localhost:3000/api/notes/{id}
+Replace {id} with the actual note ID.
+same for put

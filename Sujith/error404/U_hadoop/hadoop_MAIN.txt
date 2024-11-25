@@ -1,0 +1,100 @@
+
+HADOOP
+
+sudo apt update
+java -version
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6-aarch64.tar.gz
+tar -xzvf hadoop-3.3.6-aarch64.tar.gz
+
+sudo mv hadoop-3.3.6 /opt/Hadoop
+nano ~/.bashrc
+(in that bash file put below file)
+export HADOOP_HOME=/opt/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+source ~/.bashrc
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+   (go to other command prompt ->type
+   readlink -f $(which java) - you will get the java path)
+   export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+   ##save nd close
+
+nano $HADOOP_HOME/etc/hadoop/core-site.xml
+
+    <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+    </property>
+
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+
+   <property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+<property>
+  <name>dfs.namenode.name.dir</name>
+  <value>file:///opt/hadoop/hdfs/namenode</value>
+</property>
+<property>
+  <name>dfs.datanode.data.dir</name>
+  <value>file:///opt/hadoop/hdfs/datanode</value>
+</property>
+
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+         <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+        </property>
+
+nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+      <property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>localhost</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+  </property>
+
+
+hdfs namenode -format
+start-dfs.sh
+start-yarn.sh
+jps
+(if publick key and private key error )
+ssh-keygen -t rsa -P ""
+
+(save panrathuku file ekum)
+/home/vm_username/.ssh/my_new_key
+ssh-copy-id localhost
+cd ~/.ssh
+ls -al
+cd 
+nano ~/.bashrc
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+
+
+(remove # near JAVA_HOME)
+hdfs namenode -format
+start-dfs.sh
+start-yarn.sh
+jps
+
+now go to website --->localhost:9870 and localhost:8088
+
+
+hdfs dfs -mkdir /<folder-name>
+gedit <file-name>
+hdfs dfs -put <file-name> /<folder-name>

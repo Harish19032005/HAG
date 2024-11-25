@@ -1,0 +1,62 @@
+```html
+<!DOCTYPE html>
+<html ng-app="studentApp">
+<head>
+    <title>Student Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+</head>
+<body>
+    <div ng-controller="studentCtrl">
+        <h2>Student Management</h2>
+        <form>
+            <input type="text" ng-model="newStudent.name" placeholder="Name">
+            <input type="text" ng-model="newStudent.age" placeholder="Age">
+            <button ng-click="addStudent()">Add Student</button>
+        </form>
+        <table>
+            <tr ng-repeat="student in students">
+                <td>{{ student.name }}</td>
+                <td>{{ student.age }}</td>
+                <td><button ng-click="deleteStudent($index)">Delete</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        var app = angular.module('studentApp', []);
+
+        app.service('studentService', function() {
+            var students = [];
+
+            this.addStudent = function(newStudent) {
+                students.push(newStudent);
+            };
+
+            this.getStudents = function() {
+                return students;
+            };
+
+            this.deleteStudent = function(index) {
+                students.splice(index, 1);
+            };
+        });
+
+        app.controller('studentCtrl', function($scope, studentService) {
+            $scope.students = studentService.getStudents();
+
+            $scope.addStudent = function() {
+                var newStudent = { name: $scope.newStudent.name, age: $scope.newStudent.age };
+                studentService.addStudent(newStudent);
+                $scope.students = studentService.getStudents();
+                $scope.newStudent = {};
+            };
+
+            $scope.deleteStudent = function(index) {
+                studentService.deleteStudent(index);
+                $scope.students = studentService.getStudents();
+            };
+        });
+    </script>
+</body>
+</html>
+```

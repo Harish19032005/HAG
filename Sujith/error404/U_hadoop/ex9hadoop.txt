@@ -1,0 +1,111 @@
+cmd : sudo apt update
+cmd : sudo apt install openjdk-8-jdk -y
+cmd : java -version
+cmd : sudo apt install openssh-server openssh-client -y
+if the above command didn't work:
+	cmd : ps aux | grep apt (or) cmd : ps aux | grep dpkg
+	cmd : sudo kill -9 <process_id> =>(sudo kill -9 21826 21827)
+	cmd : sudo rm /var/lib/dpkg/lock-frontend
+	cmd : sudo dpkg --configure -a
+	cmd : sudo apt install openssh-server openssh-client -y
+cmd : sudo adduser hdoop
+cmd : su - hdoop
+cmd : ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+cmd : wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz
+cmd : tar xzf hadoop-3.4.0.tar.gz
+
+cmd : nano .bashrc
+	paste the command :
+ 	#Hadoop Related Options
+export HADOOP_HOME=/home/hdoop/hadoop-3.4.0
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+
+cmd : source ~/.bashrc
+cmd : nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+   paste the  command : export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+cmdd : which javac
+cmd : readlink -f /usr/bin/javac
+ 
+cmd : nano $HADOOP_HOME/etc/hadoop/core-site.xml
+paste the command in the <configuration> inside below code </configuration>
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/home/hdoop/tmpdata</value>
+</property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://127.0.0.1:9000</value>
+</property>
+
+cmd : nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+paste the command in the <configuration> inside below code </configuration>
+<configuration>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hdoop/dfsdata/datanode</value>
+</property>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+</configuration>
+
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+paste the command in the <configuration> inside below code </configuration>
+<configuration>
+<property>
+  <name>mapreduce.framework.name</name>
+  <value>yarn</value>
+</property>
+</configuration>
+
+cmd : nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+paste the command in the <configuration> inside below code </configuration>
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>127.0.0.1</value>
+</property>
+<property>
+  <name>yarn.acl.enable</name>
+  <value>0</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>   
+  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+</configuration>
+
+cmd : hdfs namenode -format
+cmd : cd hadoop-3.4.0
+cmd : ls
+cmd : cd sbin
+cmd : ./start-dfs.sh
+cmd : ./start-yarn.sh
+cmd : jps
+
+ Go to browser :
+http://localhost:9870
+http://localhost:9846
+http://localhost:8088
+
+

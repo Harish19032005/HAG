@@ -1,0 +1,57 @@
+DOCKER:
+sudo usermod -aG docker $USER
+sudo systemctl start docker
+sudo systemctl status docker
+mkdir test
+cd test
+touch readme.txt
+touch DockerFile
+ls
+gedit DockerFile
+FROM ubuntu
+CMD ["echo","hello i am docker"]S
+sudo docker build -t mydocker .
+sudo docker images
+sudo docker run mydocker
+sudo chown -R $(whoami) ~/.docker
+docker login
+docker images
+docker ps
+docker ps -a
+docker pull ubuntu
+docker run ubuntu
+docker run -d ubuntu
+docker run -it ubuntu /bin/bash
+
+--------------windows-----------
+//DOCKER (windows)
+
+1.install docker desktop (after signing in)
+2.Add the Docker extension
+3.create a DockerFile
+eg: (for a java program)
+we must have a java program in order run this...here HelloWorld.java
+
+FROM openjdk:11-jre-slim  # Use the OpenJDK 11 image
+WORKDIR /usr/src/app	# Set the working directory inside the container
+COPY HelloWorld.java /usr/src/app/	# Copy the Java source code into the container
+RUN javac HelloWorld.java	# Compile the Java program
+CMD ["java", "HelloWorld"]	# Run the compiled Java program
+
+4.In the terminal of VS,
+	docker build -t <any_name for the app> .	(dot is important)
+
+5.docker images  //will see the builded image here
+
+#for push images from docker
+6.docker tag <image_name or app_name> <username_id>/<new_app_name>:<version>
+ex: docker tag samplejavaApp userid1234/newSample:v1.0
+
+7.docker login
+
+8. docker push <username_id>/<new_app_name>:<version>
+ex: docker push userid1234/newSample:v1.0
+
+#for pull images
+9. docker pull <username_id>/<new_app_name>:<version>
+ex: docker pull userid1234/newSample:v1.0

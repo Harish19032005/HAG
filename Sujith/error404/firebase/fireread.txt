@@ -1,0 +1,8 @@
+//cmd prompt
+npm -g install firebase-tools
+firebase –-version
+firebase login
+firebase use –-add <id>
+firebase init
+firebase serve –-only hosting
+firebase deploy

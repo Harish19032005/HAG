@@ -1,0 +1,13 @@
+Clusters -> Browse colections -> Create Database -> enter database name and collection name
+studendDB
+student
+clusters -> overview -> connect -> drivers -> copy teh connection string
+paste the copied conn str in the code (mongouri)
+database access -> add new database user -> select password -> enter username and password -> click Add Built in Role -> select atlas admin -> click add user
+add this username and password in mongouri
+
+run:
+npm init -y
+npm install mongoose express cors body-parser
+node server.js
+run index.html

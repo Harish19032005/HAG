@@ -1,0 +1,42 @@
+CLOUDSIM:
+	1)https://github.com/Cloudslab/cloudsim/releases  
+	   and download the source code(zip file) 
+	2)Go to the link 
+		https://commons.apache.org/math/download_math.cgi
+(filename: commons-math4-4.0-beta.1-bin) -->extract it
+Download Eclipse(x86_64)	3)Install Eclipse 
+	4)In eclipse
+		Select File->New->Java Project 
+		only Give the name of the Project(cloudsim) and give the location (click browse ->CloudSim (which was installed earlier)) 
+		and finish
+	5)Click the package Explorer then 
+		Right click on the project->properties->Java Build Path>Libraries->ModulePath->Add external Jars
+		->select the executable Jar Files in the common math - 4.0-beta1 
+		click apply
+		click apply and close
+	6)Run any one program from cloudsim-5.0/modules/coludsim-examples/src/main/java 
+////////Download .zip file from the links
+https://github.com/Cloudslab/cloudsim/releases           // (5.0)
+https://commons.apache.org/math/download_math.cgi
+(filename: commons-math4-4.0-beta.1-bin) -->extract it
+Download Eclipse(x86_64)
+Open eclipse,file ->new -> java pro->proj name --> cloudsim
+disable default location and provide the path of cloudsim 5.0 download loc
+click finish
+
+Right click the cloudsim->properties->java build path->libraries->click module path->add external JAR
+ in that (extract the math download)
+Click apply
+Go back to eclipse,open cloudsim(expand it)-->open cloudsim-examples-->org.cloudbus-->cloud example-->double click it(code will be visible) and run it 
+
+-------------------------------
+CLOUD ANALYST
+	
+https://sourceforge.net/projects/cloudanalystnetbeans/
+
+https://netbeans.apache.org/front/main/download/nb17/index.html
+https://sourceforge.net/projects/cloudanalystnetbeans/
+https://netbeans.apache.org/front/main/download/nb17/     // (under installers and packages,first link)
+Open project->cloud analyst,run (error comes also give ok)
+configure simulations and run simulations
+

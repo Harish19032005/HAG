@@ -1,0 +1,533 @@
+//i.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Lending</title>
+    <link rel="stylesheet" href="ii.css">
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19/auth0-spa-js.production.js"></script>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        form {
+            margin-top: 20px;
+        }
+        #student-management {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+            <span class="name">Book Lending</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+    <nav>
+        <button id="login-btn">Login</button>
+        <button id="logout-btn" style="display: none;">Logout</button>
+        <span id="user-profile"></span>
+    </nav>
+
+    <div id="student-management">
+        <h1>Student Management</h1>
+        <table id="students-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <form id="student-form">
+            <input type="hidden" id="student-id">
+            <input type="text" id="student-name" placeholder="Name" required>
+            <input type="number" id="student-age" placeholder="Age" required>
+            <button type="submit">Save</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth0 = await createAuth0Client({
+                domain: 'dev-7ay4oaf77wyobzhg.us.auth0.com',
+                client_id: 'YsmXAkDzOVV9dzaOmIl6pvhBMQR2SUYp',
+                redirect_uri: 'http://localhost:3000'
+            });
+
+            const updateUI = async () => {
+                try {
+                    const isAuthenticated = await auth0.isAuthenticated();
+                    document.getElementById('login-btn').style.display = isAuthenticated ? 'none' : 'block';
+                    document.getElementById('logout-btn').style.display = isAuthenticated ? 'block' : 'none';
+
+                    if (isAuthenticated) {
+                        const user = await auth0.getUser();
+                        document.getElementById('user-profile').textContent = `Welcome, ${user.name}`;
+                        document.getElementById('student-management').style.display = 'block';
+                        renderStudents();
+                    } else {
+                        document.getElementById('user-profile').textContent = '';
+                        document.getElementById('student-management').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error updating UI:', error);
+                }
+            };
+
+            const login = async () => {
+                await auth0.loginWithRedirect();
+            };
+
+            const logout = () => {
+                auth0.logout({ returnTo: window.location.origin });
+            };
+
+            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                try {
+                    await auth0.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error('Error handling redirect callback:', error);
+                }
+            }
+
+            // Event listeners for login and logout
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            updateUI();
+
+            const fetchStudents = async () => {
+                const response = await fetch('/api/students');
+                return response.json();
+            };
+
+            const addStudent = async (student) => {
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(student),
+                });
+                return response.json();
+            };
+
+            const updateStudent = async (id, student) => {
+                const response = await fetch(`/api/students/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(student),
+                });
+                return response.json();
+            };
+
+            const deleteStudent = async (id) => {
+                await fetch(`/api/students/${id}`, { method: 'DELETE' });
+            };
+
+            const renderStudents = async () => {
+                const students = await fetchStudents();
+                const tbody = document.querySelector('#students-table tbody');
+                tbody.innerHTML = students.map(student => `
+                    <tr data-id="${student.id}">
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.age}</td>
+                        <td>
+                            <button onclick="editStudent(${student.id})">Edit</button>
+                            <button onclick="removeStudent(${student.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            };
+
+            window.editStudent = (id) => {
+                const row = document.querySelector(`#students-table tbody tr[data-id="${id}"]`);
+                document.getElementById('student-id').value = id;
+                document.getElementById('student-name').value = row.children[1].textContent;
+                document.getElementById('student-age').value = row.children[2].textContent;
+            };
+
+            window.removeStudent = async (id) => {
+                await deleteStudent(id);
+                renderStudents();
+            };
+
+            document.getElementById('student-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const id = document.getElementById('student-id').value;
+                const name = document.getElementById('student-name').value;
+                const age = document.getElementById('student-age').value;
+
+                if (id) {
+                    await updateStudent(id, { name, age });
+                } else {
+                    await addStudent({ name, age });
+                }
+
+                document.getElementById('student-form').reset();
+                renderStudents();
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+//ii.html
+body {
+    margin: 0;
+    color: #6a6f8c;
+    background: #c8c8c8;
+    font: 600 16px/18px 'Open Sans', sans-serif;
+}
+*,
+:after,
+:before {
+    box-sizing: border-box;
+}
+.clearfix:after,
+.clearfix:before {
+    content: '';
+    display: table;
+}
+.clearfix:after {
+    clear: both;
+    display: block;
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+}
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+.nav-links li {
+    margin-left: 20px;
+}
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+}
+.burger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+.burger div {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 5px;
+}
+.hero {
+    height: 100vh;
+    background: url('https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+}
+.hero-content {
+    font-color:powderblue;
+}
+.hero h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+.hero p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+.cta-btn {
+    padding: 10px 20px;
+    background-color: #1161ee;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    text-decoration: none;
+}
+.portfolio,
+.about,
+.contact {
+    padding: 60px 20px;
+}
+.portfolio .grid-container,
+.about .timeline,
+.about .testimonials,
+.contact .contact-form,
+.contact .map,
+.contact .social-links {
+    margin-top: 20px;
+}
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+.footer .quick-links ul {
+    list-style: none;
+    padding: 0;
+}
+.footer .quick-links ul li {
+    display: inline;
+    margin: 0 10px;
+}
+.footer .quick-links a {
+    color: #fff;
+    text-decoration: none;
+}
+.footer .social-icons {
+    margin-top: 10px;
+}
+.footer .social-icons img {
+    width: 30px;
+    height: 30px;
+    margin: 0 5px;
+}
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #333;
+        position: absolute;
+        top: 60px;
+        left: 0;
+    }
+    .nav-links li {
+        margin: 10px 0;
+    }
+    .burger {
+        display: flex;
+    }
+}
+.contact {
+    padding: 60px 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+.contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+button[type="submit"] {
+    background-color: #1161ee;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0d4cb5;
+}
+
+.map,
+.social-links {
+    margin-top: 20px;
+    /* Adjust margin as needed */
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: justify;
+}
+
+.about-content h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.about-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #666;
+}
+#login-btn, #logout-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+}
+
+#login-btn:hover, #logout-btn:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+
+#user-profile {
+  margin-left: 20px;
+  font-size: 18px;
+  color: white;
+}
+
+
+
+
+//server.js
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+
+// In-memory storage for student details
+let students = [];
+
+// Routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'i.html'));
+});
+
+// Get all students
+app.get('/api/students', (req, res) => {
+    res.json(students);
+});
+
+// Add a new student
+app.post('/api/students', (req, res) => {
+    const newStudent = { id: Date.now(), ...req.body };
+    students.push(newStudent);
+    res.status(201).json(newStudent);
+});
+
+// Update a student by ID
+app.put('/api/students/:id', (req, res) => {
+    const studentId = parseInt(req.params.id, 10);
+    const index = students.findIndex((student) => student.id === studentId);
+
+    if (index !== -1) {
+        students[index] = { ...students[index], ...req.body };
+        res.json(students[index]);
+    } else {
+        res.status(404).send('Student not found');
+    }
+});
+
+// Delete a student by ID
+app.delete('/api/students/:id', (req, res) => {
+    const studentId = parseInt(req.params.id, 10);
+    const index = students.findIndex((student) => student.id === studentId);
+
+    if (index !== -1) {
+        const deletedStudent = students.splice(index, 1);
+        res.json(deletedStudent);
+    } else {
+        res.status(404).send('Student not found');
+    }
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+

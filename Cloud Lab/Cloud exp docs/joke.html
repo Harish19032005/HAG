@@ -1,0 +1,159 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joke App</title>
+  <style>
+    /* Global styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-image: url('Download premium vector of Social media themed border on a blue background vector by Minty about emoji, emoticons pattern, frame heart, wink, and emoji background emoticon 588473.jpeg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-color: #f0f0f0;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8); /* White overlay with reduced opacity */
+      z-index: -1;
+    }
+
+    /* Container for the joke */
+    .joke-container {
+      text-align: center;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Heading styles */
+    .joke h2 {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 28px;
+    }
+
+    /* Joke setup and punchline styles */
+    .joke p {
+      margin: 10px 0;
+      color: #666;
+      font-size: 20px;
+    }
+
+    /* Button styles */
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 20px; /* Space between buttons */
+    }
+
+    .button {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button.next {
+      background-color: #007bff;
+      color: white;
+      margin-right: 20px;
+      width:50%;	  
+/* Increased spacing */
+    }
+
+    .button.previous {
+      background-color: #f0f0f0;
+      color: #333;
+      margin-left: 20px;
+	  width:50%;
+	  /* Increased spacing */
+    }
+
+    /* Button hover effect */
+    .button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="joke-container">
+    <h2>Random Joke</h2>
+    <div class="joke">
+      <p id="joke-setup">Loading...</p>
+      <p id="joke-punchline"></p>
+    </div>
+
+    <div class="button-container">
+      <button class="button previous" onclick="fetchPreviousJoke()">Previous Joke</button>
+      <button class="button next" onclick="fetchNextJoke()">Next Joke</button>
+    </div>
+  </div>
+
+  <script>
+    let jokes = [];
+    let currentJokeIndex = -1;
+
+    async function fetchNextJoke() {
+      const apiUrl = 'https://official-joke-api.appspot.com/random_joke';
+      
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        jokes.push(data);
+        currentJokeIndex++;
+        displayJoke(data);
+      } catch (error) {
+        document.getElementById('joke-setup').innerText = `Error: ${error.message}`;
+        document.getElementById('joke-punchline').innerText = '';
+      }
+    }
+
+    function fetchPreviousJoke() {
+      if (currentJokeIndex > 0) {
+        currentJokeIndex--;
+        displayJoke(jokes[currentJokeIndex]);
+      }
+    }
+
+    function displayJoke(joke) {
+      document.getElementById('joke-setup').innerText = joke.setup;
+      document.getElementById('joke-punchline').innerText = joke.punchline;
+    }
+
+    // Call the function to fetch a joke when the page loads
+    fetchNextJoke();
+  </script>
+</body>
+</html>
